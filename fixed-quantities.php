@@ -1,6 +1,6 @@
 <?php
 /*
-Plugin Name: Fixed Quantities
+Plugin Name: WooCommerce Fixed Quantities
 Plugin URI: 
 Description: Add an attribute with the slug 'fixed-quantity' to your WooCommerce attributes to be able to sell products in batches of fixed quantities.
 
