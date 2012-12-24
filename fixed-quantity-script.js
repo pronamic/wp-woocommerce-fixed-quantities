@@ -1,132 +1,113 @@
+// Handles single product pages
 jQuery(document).ready(function($){
-	var quantity;
-	var quantities;
-	if(typeof fixed_quantity != 'undefined'){
-		quantity = fixed_quantity.fixed_quantity;
-	}
-	if(typeof fixed_quantities != 'undefined'){
-		quantities = fixed_quantities.fixed_quantities;
-	}
 	
-	if(quantity){
+	// Exit when the Fixed_Quantities object is not found
+	if(typeof Fixed_Quantities == 'undefined')
+		return;
+	
+	// Maximum number of select options
+	var maximumSelectOptions = 10;
+	
+	// When the selected variation changes the stock selector should be updated
+	$('input[name=variation_id]').change(function(){
 		
-		setInterval(
-			function(){
-				if(quantity > 1 && $('.qty').attr('value') != undefined && $('.qty').attr('value') == $('.qty').attr('data-min')){
-					var max = parseFloat($('.qty').attr('data-max'));
-					var min = parseFloat($('.qty').attr('data-min'));
-					
-					$parent = $('.qty').parent();
-					
-					var select = '<select name="quantity" class="fixed-quantity-select input-select select">';
-
-					for(var i = parseFloat(quantity); i <= max; i += parseFloat(quantity)){
-						select += '<option value="' + i + '">' + i + '</option>';
-					}
-					
-					$parent.html(select);
-				}
-			},
-			50
-		);
+		// Exit when step is either 1 or not set
+		if(Fixed_Quantities.step == 1 || Fixed_Quantities.step == '')
+			return;
 		
-		$('select').change(function(){
-			if(quantity <= 1)
-				return;
+		// Variation id
+		var variationID = $(this).val();
+		
+		// Exit on empty value
+		if(variationID == '')
+			return;
+		
+		// Get stock. When stock is below the fixed quantity threshold, but backorders are allowed,
+		// set stock to maximumSelectOptions times the fixed quantity to fill the quantity selector with.
+		var stock = parseFloat(Fixed_Quantities.stock[variationID]);
+		if(Fixed_Quantities.backorders && stock < parseFloat(Fixed_Quantities.step) * maximumSelectOptions)
+			stock = parseFloat(Fixed_Quantities.step) * maximumSelectOptions;
+		
+		// Build quantity selector
+		var select = '<select name="quantity" class="fixed-quantity-select input-select select">';
+		for(var i = parseFloat(Fixed_Quantities.step); i <= stock; i += parseFloat(Fixed_Quantities.step)){
 			
-			setTimeout(function(){
-				if($('.stock').html() == null)
-					return;
-				
-				var max = parseFloat($('.stock').html().replace(/[A-Za-z$-]/g, ''));
-				var min = 1;
-				
-				$parent = $('.fixed-quantity-select').parent();
-				
-				var select = '<select name="quantity" class="fixed-quantity-select input-select select">';
+			// Add option
+			select += '<option value="' + i + '">' + i + '</option>';
+			
+			// Break when the maximum number of selected options is reached
+			if(i >= maximumSelectOptions * parseFloat(Fixed_Quantities.step))
+				break;
+		}
+		select += '</select>';
+		
+		// Replace quantity field with new quantity selector
+		$('.quantity.buttons_added').html(select);
+	});
+});
 
-				for(var i = parseFloat(quantity); i <= max; i += parseFloat(quantity)){
-					select += '<option value="' + i + '">' + i + '</option>';
-				}
-				
-				$parent.html(select);
-			}, 200)
-		});
-	} else if(quantities){
-		$.each(quantities, function(key, value){
-			$.fn.fixed_quantities = function(quantity){
-				if(quantity <= 1)
-					return;
-				
-				$element = $(this);
-				
-				var name = $element.attr('name');
-				var value = parseFloat($element.attr('value'));
-				var max = parseFloat($element.attr('data-max'));
-				var min = parseFloat($element.attr('data-min'));
-				
-				$parent = $element.parent();
-				
-				var select = '<select name="' + name + '" class="fixed-quantity-select input-select select">';
-
-				for(var i = parseFloat(quantity); i <= max; i += parseFloat(quantity)){
-					var selected = '';
-					if(value == i)
-						selected = 'selected="selected"';
-					
-					select += '<option value="' + i + '" ' + selected + '>' + i + '</option>';
-				}
-				
-				$parent.html(select);
-				
-				return;
-
-				$element.attr({
-					'data-min': quantity,
-					'data-max': $('.qty').attr('data-max') - ($('.qty').attr('data-max') % quantity)
-				});
-
-				$element.next().click(function() {
-				    var currentVal = parseInt($(this).prev(".qty").val());
-				    if (!currentVal || currentVal=="" || currentVal == "NaN") currentVal = 0;
-					    
-				    $qty = $(this).prev(".qty");
-					    
-				    var max = parseInt($qty.attr('data-max'));
-				    if (max=="" || max == "NaN") max = '';
-					    
-				    if (max && (max==currentVal || currentVal>max)) {
-				    	$qty.val(max); 
-				    } else {
-				    	$qty.val(currentVal + (quantity - 1)); 
-				    }
-					    
-				    $qty.trigger('change');
-				});
-
-				$element.prev().click(function() {
-					var currentVal = parseInt($(this).next(".qty").val());
-				    if (!currentVal || currentVal=="" || currentVal == "NaN") currentVal = 0;
-					    
-				    $qty = $(this).next(".qty");
-					    
-				    var min = parseInt($qty.attr('data-min'));
-				    if (min=="" || min == "NaN") min = 0;
-					    
-				    if (min && (min==currentVal || currentVal<min)) {
-				    	$qty.val(min); 
-				    } else if (currentVal > 0) {
-				    	$qty.val(currentVal - (quantity + 1));
-				    }
-					    
-				    $qty.trigger('change');
-				});
-			}
-
-			$('.qty').each(function(){
+// Handles the cart page
+jQuery(document).ready(function($){
+	
+	// Exit when the Fixed_Quantities object is not found
+	if(typeof Fixed_Quantities_Cart == 'undefined')
+		return;
+	
+	// Maximum number of select options
+	var maximumSelectOptions = 10;
+	
+	// Loop through cart items
+	$.each(Fixed_Quantities_Cart, function(key, values){
+			
+		// Exit when step is either 1 or not set
+		if(values.step == 1 || values.step == '')
+			return;
+		
+		// Loop through qunatity fields to find the right one
+		var $quantityField;
+		$('.quantity.buttons_added').each(function(){
+			$('input').each(function(){
 				if($(this).attr('name') == 'cart[' + key + '][qty]')
-					$(this).fixed_quantities(value);
+					$quantityField = $(this);
 			});
 		});
-	}
+		
+		// Return when the quantity field is null
+		if($quantityField == null || $quantityField == 'undefined')
+			return;
+		
+		// Get stock. When stock is below the fixed quantity threshold, but backorders are allowed,
+		// set stock to maximumSelectOptions times the fixed quantity to fill the quantity selector with.
+		var stock = parseFloat(values.stock);
+		if(values.backorders && stock < parseFloat(values.step) * maximumSelectOptions)
+			stock = parseFloat(values.step) * maximumSelectOptions;
+		
+		// Build quantity selector
+		var currentValue = $quantityField.val();console.log(currentValue);
+		var select = '<select name="cart[' + key + '][qty]" class="fixed-quantity-select input-select select">';
+		for(var i = parseFloat(values.step); i <= stock; i += parseFloat(values.step)){
+			
+			// Check if option needs to be selected
+			var selected = '';
+			if(currentValue == i)
+				selected = 'selected="selected"';
+			
+			// Add option
+			select += '<option value="' + i + '"' + selected + '>' + i + '</option>';
+			
+			// Break when the maximum number of selected options is reached
+			if(i >= maximumSelectOptions * parseFloat(values.step))
+				break;
+		}
+		
+		// If currentValue is bigger than any item in the list, show it selected at the end of the list.
+		if(currentValue > i)
+			select += '<option value="' + currentValue + '" selected="selected">' + currentValue + '</option>';
+		
+		// Close list
+		select += '</select>';
+		
+		// Replace quantity field with new quantity selector
+		$quantityField.parent().html(select);
+	});
 });
