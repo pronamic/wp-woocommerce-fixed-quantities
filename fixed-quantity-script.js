@@ -24,7 +24,7 @@ jQuery(document).ready(function($){
 		
 		// Get stock. When stock is below the fixed quantity threshold, but backorders are allowed,
 		// set stock to maximumSelectOptions times the fixed quantity to fill the quantity selector with.
-		if(values.stock == '') values.stock = 0;
+		if(Fixed_Quantities.stock == '') Fixed_Quantities.stock = 0;
 		var stock = parseFloat(Fixed_Quantities.stock[variationID]);
 		if(Fixed_Quantities.backorders && stock < parseFloat(Fixed_Quantities.step) * maximumSelectOptions)
 			stock = parseFloat(Fixed_Quantities.step) * maximumSelectOptions;
