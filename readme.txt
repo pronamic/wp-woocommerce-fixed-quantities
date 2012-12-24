@@ -1,4 +1,4 @@
-=== Parcelware ===
+=== WooCommerce Fixed Quantities ===
 Contributors: pronamic, stefanboonstra
 Tags: 
 Requires at least: 3.3
