@@ -84,14 +84,17 @@ jQuery(document).ready(function($){
 		if(values.backorders && stock < parseFloat(values.step) * maximumSelectOptions)
 			stock = parseFloat(values.step) * maximumSelectOptions;
 		
+		// If the current value is higher than the fixed quantity and stock, but backorders are disabled, set stock to current value
+		if(parseFloat(values.step) < $quantityField.val() && stock < $quantityField.val() && !values.backorders)
+			stock = $quantityField.val();
+		
 		// Build quantity selector
-		var currentValue = $quantityField.val();
 		var select = '<select name="cart[' + key + '][qty]" class="fixed-quantity-select input-select select">';
 		for(var i = parseFloat(values.step); i <= stock; i += parseFloat(values.step)){
 			
 			// Check if option needs to be selected
 			var selected = '';
-			if(currentValue == i)
+			if($quantityField.val() == i)
 				selected = 'selected="selected"';
 			
 			// Add option
@@ -103,8 +106,8 @@ jQuery(document).ready(function($){
 		}
 		
 		// If currentValue is bigger than any item in the list, show it selected at the end of the list.
-		if(currentValue > i)
-			select += '<option value="' + currentValue + '" selected="selected">' + currentValue + '</option>';
+		if($quantityField.val() > i)
+			select += '<option value="' + $quantityField.val() + '" selected="selected">' + $quantityField.val() + '</option>';
 		
 		// Close list
 		select += '</select>';
