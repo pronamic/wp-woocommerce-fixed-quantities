@@ -85,7 +85,7 @@ jQuery(document).ready(function($){
 			stock = parseFloat(values.step) * maximumSelectOptions;
 		
 		// Build quantity selector
-		var currentValue = $quantityField.val();console.log(currentValue);
+		var currentValue = $quantityField.val();
 		var select = '<select name="cart[' + key + '][qty]" class="fixed-quantity-select input-select select">';
 		for(var i = parseFloat(values.step); i <= stock; i += parseFloat(values.step)){
 			
