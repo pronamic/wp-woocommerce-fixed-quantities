@@ -85,7 +85,7 @@ jQuery(document).ready(function($){
 			stock = parseFloat(values.step) * maximumSelectOptions;
 		
 		// If the current value is higher than the fixed quantity and stock, but backorders are disabled, set stock to current value
-		if(parseFloat(values.step) < $quantityField.val() && stock < $quantityField.val() && !values.backorders)
+		if(parseFloat(values.step) <= $quantityField.val() && stock < $quantityField.val() && !values.backorders)
 			stock = $quantityField.val();
 		
 		// Build quantity selector
