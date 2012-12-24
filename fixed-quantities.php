@@ -32,8 +32,12 @@ function fixed_quantities_woocommerce_add_to_cart_button( $cart_item_key, $produ
 		return;
 
 	// Get the product's fixed quantity
-	$term = reset( get_the_terms( $product_id, 'pa_fixed-quantity' ) );
-	$qty = $term->slug;
+	$qty = null;
+	$terms = get_the_terms( $product_id, 'pa_fixed-quantity' );
+	if( is_array( $terms ) ){
+		$term = reset( $terms );
+		$qty = $term->slug;
+	}
 
 	// When the item is in the cart and the retrieved fixed quantity is numeric, alter the cart item's quantity to the fixed quantity. 
 	if( isset( $GLOBALS[ 'woocommerce' ]->cart->cart_contents[ $cart_item_key ] ) && is_array( $GLOBALS[ 'woocommerce' ]->cart->cart_contents[ $cart_item_key ] ) &&
@@ -55,7 +59,14 @@ function fixed_quantities_localize_fixed_quantity_product() {
 		return;
 
 	// Get the product's fixed quantity, return if it's not set
-	$term = reset( get_the_terms( $post->ID, 'pa_fixed-quantity' ) );
+	$terms = get_the_terms( $post->ID, 'pa_fixed-quantity' );
+	$term = null;
+	if( is_array( $terms ) ){
+		$term = reset( $terms );
+	}else{
+		return;
+	}
+	
 	if( ! is_numeric( $term->slug ) )
 		return;
 		
@@ -107,7 +118,11 @@ add_action( 'wp', 'fixed_quantities_localize_fixed_quantity_product' );
  * need to be loaded. If a product has no fixed quantity, the default qunatity box will be shown.
  */
 function fixed_quantities_localize_fixed_quantities_cart() {
-	$cart_contents = $GLOBALS[ 'woocommerce' ]->cart->cart_contents;
+	
+	// Cart contents
+	$cart_contents = null;
+	if( isset( $GLOBALS[ 'woocommerce' ], $GLOBALS['woocommerce']->cart ) )
+		$cart_contents = $GLOBALS[ 'woocommerce' ]->cart->cart_contents;
 
 	// Exit when no cart contents are available
 	if( ! is_array( $cart_contents ) || empty( $cart_contents ) )
