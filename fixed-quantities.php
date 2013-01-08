@@ -136,7 +136,7 @@ function fixed_quantities_localize_fixed_quantities_cart() {
 		$term = reset( get_the_terms( $product[ 'product_id' ], 'pa_fixed-quantity' ) );
 		
 		// Get stock
-		$stock = get_post_meta( $product[ 'product_id' ], '_stock', true );
+		$stock = $product[ 'data' ]->stock;
 		
 		// Get backorders setting
 		$backorders = ( get_post_meta( $product[ 'product_id' ], '_backorders', true ) != 'no' ) ? true : false;

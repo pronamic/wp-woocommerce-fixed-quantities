@@ -61,7 +61,7 @@ jQuery(document).ready(function($){
 	$.each(Fixed_Quantities_Cart, function(key, values){
 			
 		// Exit when step is either 1 or not set
-		if(values.step == 1 || values.step == '')
+		if(values.step == 1 || values.step == '' || values.step == null)
 			return;
 		
 		// Loop through qunatity fields to find the right one
