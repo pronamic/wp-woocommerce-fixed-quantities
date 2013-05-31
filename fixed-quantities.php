@@ -94,7 +94,7 @@ function fixed_quantities_localize_fixed_quantity_product() {
 	// Register and enqueue fixed quantities script. Enqueueing is done as late in 'wp_enqueue_scripts' as possible.
 	wp_register_script(
 		'fixed-quantity-script',
-		plugins_url( '', __FILE__ ) . '/fixed-quantity-script.js',
+		plugins_url( 'fixed-quantity-script.js', __FILE__ ),
 		array( 'jquery' ),
 		null,
 		true
@@ -153,7 +153,7 @@ function fixed_quantities_localize_fixed_quantities_cart() {
 	// Register and enqueue fixed quantities script. Enqueueing is done as late in 'wp_enqueue_scripts' as possible.
 	wp_register_script(
 		'fixed-quantity-script',
-		plugins_url( '', __FILE__ ) . '/fixed-quantity-script.js',
+		plugins_url( 'fixed-quantity-script.js', __FILE__ ),
 		array( 'jquery' ),
 		null,
 		true
