@@ -28,6 +28,8 @@ GitHub URI: https://github.com/pronamic/wp-woocommerce-fixed-quantities
  * @param int $quantity
  */
 function fixed_quantities_woocommerce_add_to_cart_button( $cart_item_key, $product_id, $quantity ) {
+	global $woocommerce;
+
 	if ( $quantity > 1 )
 		return;
 
@@ -41,10 +43,10 @@ function fixed_quantities_woocommerce_add_to_cart_button( $cart_item_key, $produ
 	}
 
 	// When the item is in the cart and the retrieved fixed quantity is numeric, alter the cart item's quantity to the fixed quantity. 
-	if ( isset( $GLOBALS['woocommerce']->cart->cart_contents[ $cart_item_key ] ) && is_array( $GLOBALS['woocommerce']->cart->cart_contents[ $cart_item_key ] ) &&
+	if ( isset( $woocommerce->cart->cart_contents[ $cart_item_key ] ) && is_array( $woocommerce->cart->cart_contents[ $cart_item_key ] ) &&
 		is_numeric( $qty ) ) {
 
-		$GLOBALS['woocommerce']->cart->cart_contents[ $cart_item_key ]['quantity'] += $qty - ($GLOBALS['woocommerce']->cart->cart_contents[ $cart_item_key ]['quantity'] % $qty);
+		$woocommerce->cart->cart_contents[ $cart_item_key ]['quantity'] += $qty - ( $woocommerce->cart->cart_contents[ $cart_item_key ]['quantity'] % $qty );
 	}
 }
 
@@ -121,10 +123,12 @@ add_action( 'wp', 'fixed_quantities_localize_fixed_quantity_product' );
  * need to be loaded. If a product has no fixed quantity, the default qunatity box will be shown.
  */
 function fixed_quantities_localize_fixed_quantities_cart() {
+	global $woocommerce;
+
 	// Cart contents
 	$cart_contents = null;
-	if ( isset( $GLOBALS['woocommerce'], $GLOBALS['woocommerce']->cart ) )
-		$cart_contents = $GLOBALS['woocommerce']->cart->cart_contents;
+	if ( isset( $woocommerce, $woocommerce->cart ) )
+		$cart_contents = $woocommerce->cart->cart_contents;
 
 	// Exit when no cart contents are available
 	if ( ! is_array( $cart_contents ) || empty( $cart_contents ) )
