@@ -28,25 +28,27 @@ GitHub URI: https://github.com/pronamic/wp-woocommerce-fixed-quantities
  * @param int $quantity
  */
 function fixed_quantities_woocommerce_add_to_cart_button( $cart_item_key, $product_id, $quantity ) {
-	if( $quantity > 1 )
+	if ( $quantity > 1 )
 		return;
 
 	// Get the product's fixed quantity
 	$qty = null;
 	$terms = get_the_terms( $product_id, 'pa_fixed-quantity' );
-	if( is_array( $terms ) ){
+	if ( is_array( $terms ) ) {
 		$term = reset( $terms );
+
 		$qty = $term->slug;
 	}
 
 	// When the item is in the cart and the retrieved fixed quantity is numeric, alter the cart item's quantity to the fixed quantity. 
-	if( isset( $GLOBALS[ 'woocommerce' ]->cart->cart_contents[ $cart_item_key ] ) && is_array( $GLOBALS[ 'woocommerce' ]->cart->cart_contents[ $cart_item_key ] ) &&
+	if ( isset( $GLOBALS['woocommerce']->cart->cart_contents[ $cart_item_key ] ) && is_array( $GLOBALS['woocommerce']->cart->cart_contents[ $cart_item_key ] ) &&
 		is_numeric( $qty ) ) {
 
-		$GLOBALS[ 'woocommerce' ]->cart->cart_contents[ $cart_item_key ][ 'quantity' ] += $qty - ($GLOBALS[ 'woocommerce' ]->cart->cart_contents[ $cart_item_key ][ 'quantity' ] % $qty);
+		$GLOBALS['woocommerce']->cart->cart_contents[ $cart_item_key ]['quantity'] += $qty - ($GLOBALS['woocommerce']->cart->cart_contents[ $cart_item_key ]['quantity'] % $qty);
 	}
 }
-add_action('woocommerce_add_to_cart', 'fixed_quantities_woocommerce_add_to_cart_button', 10, 3);
+
+add_action( 'woocommerce_add_to_cart', 'fixed_quantities_woocommerce_add_to_cart_button', 10, 3 );
 
 /**
  * When on a single post, see if we are using fixed quantities. If so, localize the
@@ -55,19 +57,19 @@ add_action('woocommerce_add_to_cart', 'fixed_quantities_woocommerce_add_to_cart_
 function fixed_quantities_localize_fixed_quantity_product() {
 	global $post;
 
-	if( $post == null )
+	if ( $post == null )
 		return;
 
 	// Get the product's fixed quantity, return if it's not set
 	$terms = get_the_terms( $post->ID, 'pa_fixed-quantity' );
 	$term = null;
-	if( is_array( $terms ) ){
+	if ( is_array( $terms ) ) {
 		$term = reset( $terms );
-	}else{
+	} else {
 		return;
 	}
 	
-	if( ! is_numeric( $term->slug ) )
+	if ( ! is_numeric( $term->slug ) )
 		return;
 		
 	// Get product's backorders setting
@@ -77,14 +79,13 @@ function fixed_quantities_localize_fixed_quantity_product() {
 	$variations = get_children( array(
 		'post_parent' => $post->ID,
 		'numberposts' => -1,
-		'post_type' => 'product_variation'
+		'post_type'   => 'product_variation'
 	) );
 	
 	// Loop through variations and get their stock
 	$stock = array();
-	if( is_array( $variations ) ){
-		foreach( $variations as $variation ){
-			
+	if ( is_array( $variations ) ) {
+		foreach ( $variations as $variation ) {
 			// Get post meta and store it in the stock array referenced by its variation ID
 			$stock[ $variation->ID ] = get_post_meta( $variation->ID, '_stock', true );
 		}
@@ -98,19 +99,21 @@ function fixed_quantities_localize_fixed_quantity_product() {
 		null,
 		true
 	);
-	add_action( 'wp_enqueue_scripts', 'fixed_quantities_enqueue', 99);
+
+	add_action( 'wp_enqueue_scripts', 'fixed_quantities_enqueue', 99 );
 	
 	// Make fixed quantity, backorder setting and stock variables available to the script
 	wp_localize_script(
 		'fixed-quantity-script',
 		'Fixed_Quantities',
 		array(
-			'step' => $term->slug,
-			'stock' => $stock,
+			'step'       => $term->slug,
+			'stock'      => $stock,
 			'backorders' => $backorders
 		)
 	);
 }
+
 add_action( 'wp', 'fixed_quantities_localize_fixed_quantity_product' );
 
 /**
@@ -118,33 +121,31 @@ add_action( 'wp', 'fixed_quantities_localize_fixed_quantity_product' );
  * need to be loaded. If a product has no fixed quantity, the default qunatity box will be shown.
  */
 function fixed_quantities_localize_fixed_quantities_cart() {
-	
 	// Cart contents
 	$cart_contents = null;
-	if( isset( $GLOBALS[ 'woocommerce' ], $GLOBALS['woocommerce']->cart ) )
-		$cart_contents = $GLOBALS[ 'woocommerce' ]->cart->cart_contents;
+	if ( isset( $GLOBALS['woocommerce'], $GLOBALS['woocommerce']->cart ) )
+		$cart_contents = $GLOBALS['woocommerce']->cart->cart_contents;
 
 	// Exit when no cart contents are available
-	if( ! is_array( $cart_contents ) || empty( $cart_contents ) )
+	if ( ! is_array( $cart_contents ) || empty( $cart_contents ) )
 		return;
 
 	// Loop through the cart's products and place each product's post-meta in the fixed quantities array
 	$fixed_quantities = array();
-	foreach( $cart_contents as $key => $product ) {
-
+	foreach ( $cart_contents as $key => $product ) {
 		// Get the fixed quantity term
-		$term = reset( get_the_terms( $product[ 'product_id' ], 'pa_fixed-quantity' ) );
+		$term = reset( get_the_terms( $product['product_id'], 'pa_fixed-quantity' ) );
 		
 		// Get stock
 		$stock = $product[ 'data' ]->stock;
 		
 		// Get backorders setting
-		$backorders = ( get_post_meta( $product[ 'product_id' ], '_backorders', true ) != 'no' ) ? true : false;
+		$backorders = ( get_post_meta( $product['product_id'], '_backorders', true ) != 'no' ) ? true : false;
 		
 		// Add values to array
 		$fixed_quantities[ $key ] = array(
-			'step' => $term->slug,
-			'stock' => $stock,
+			'step'       => $term->slug,
+			'stock'      => $stock,
 			'backorders' => $backorders
 		);
 	}
@@ -157,7 +158,8 @@ function fixed_quantities_localize_fixed_quantities_cart() {
 		null,
 		true
 	);
-	add_action( 'wp_enqueue_scripts', 'fixed_quantities_enqueue', 99);
+
+	add_action( 'wp_enqueue_scripts', 'fixed_quantities_enqueue', 99 );
 	
 	// Make fixed quantity, backorder setting and stock variables available to the script
 	wp_localize_script(
@@ -166,6 +168,7 @@ function fixed_quantities_localize_fixed_quantities_cart() {
 		$fixed_quantities
 	);
 }
+
 add_action( 'wp', 'fixed_quantities_localize_fixed_quantities_cart' );
 
 /**
