@@ -137,23 +137,27 @@ function fixed_quantities_localize_fixed_quantities_cart() {
 	// Loop through the cart's products and place each product's post-meta in the fixed quantities array
 	$fixed_quantities = array();
 	foreach ( $cart_contents as $key => $product ) {
-		// Get the fixed quantity term
-		$term = reset( get_the_terms( $product['product_id'], 'pa_fixed-quantity' ) );
-		
-		// Get stock
-		$stock = $product['data']->stock;
-		
-		// Get backorders setting
-		$backorders = ( get_post_meta( $product['product_id'], '_backorders', true ) != 'no' ) ? true : false;
-		
-		// Add values to array
-		$fixed_quantities[ $key ] = array(
-			'step'       => $term->slug,
-			'stock'      => $stock,
-			'backorders' => $backorders
-		);
+		$terms = get_the_terms( $product['product_id'], 'pa_fixed-quantity' );
+
+		if ( is_array( $terms ) ) {
+			// Get the fixed quantity term
+			$term = reset( $terms );
+
+			// Get stock
+			$stock = $product['data']->stock;
+
+			// Get backorders setting
+			$backorders = ( get_post_meta( $product['product_id'], '_backorders', true ) != 'no' ) ? true : false;
+
+			// Add values to array
+			$fixed_quantities[ $key ] = array(
+				'step'       => $term->slug,
+				'stock'      => $stock,
+				'backorders' => $backorders
+			);
+		}
 	}
-	
+
 	// Register and enqueue fixed quantities script. Enqueueing is done as late in 'wp_enqueue_scripts' as possible.
 	wp_register_script(
 		'fixed-quantity-script',
