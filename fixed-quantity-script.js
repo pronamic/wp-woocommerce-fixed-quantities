@@ -43,7 +43,7 @@ jQuery(document).ready(function($){
 		select += '</select>';
 		
 		// Replace quantity field with new quantity selector
-		$('.quantity.buttons_added').html(select);
+		$('.quantity').html(select);
 	});
 });
 
@@ -66,7 +66,7 @@ jQuery(document).ready(function($){
 		
 		// Loop through qunatity fields to find the right one
 		var $quantityField;
-		$('.quantity.buttons_added').each(function(){
+		$('.quantity').each(function(){
 			$('input').each(function(){
 				if($(this).attr('name') == 'cart[' + key + '][qty]')
 					$quantityField = $(this);
